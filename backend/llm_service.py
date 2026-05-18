@@ -60,7 +60,7 @@ def continue_with_tool_result(state_summary: str, messages: list[dict], tool_res
             "content": str(tr["result"])
         })
 
-    messages.append({"role": "assistant", "content": assistant_content})
+    messages.append({"role": "user", "content": assistant_content})
 
     response = client.messages.create(
         model=ANTHROPIC_MODEL,
