@@ -5,6 +5,8 @@
       <p class="subtitle">AI 小说创作助手</p>
     </header>
 
+    <div v-if="errorMsg" class="error-banner">{{ errorMsg }}</div>
+
     <div class="create-bar">
       <input
         v-model="newTitle"
@@ -13,8 +15,8 @@
         class="create-input"
         maxlength="100"
       />
-      <button @click="handleCreate" :disabled="!newTitle.trim()" class="btn btn-primary">
-        创建故事
+      <button @click="handleCreate" :disabled="!newTitle.trim() || loading" class="btn btn-primary">
+        {{ loading ? '创建中...' : '创建故事' }}
       </button>
     </div>
 
@@ -52,13 +54,30 @@ const store = useStoryStore()
 const router = useRouter()
 const newTitle = ref('')
 
-onMounted(() => store.loadProjects())
+const errorMsg = ref('')
+const loading = ref(false)
+
+onMounted(async () => {
+  try {
+    await store.loadProjects()
+  } catch {
+    errorMsg.value = '无法连接后端服务，请确认后端已启动 (localhost:8001)'
+  }
+})
 
 async function handleCreate() {
   if (!newTitle.value.trim()) return
-  const p = await store.addProject(newTitle.value.trim())
-  newTitle.value = ''
-  router.push(`/story/${p.id}`)
+  loading.value = true
+  errorMsg.value = ''
+  try {
+    const p = await store.addProject(newTitle.value.trim())
+    newTitle.value = ''
+    router.push(`/story/${p.id}`)
+  } catch {
+    errorMsg.value = '创建失败，请确认后端服务已启动'
+  } finally {
+    loading.value = false
+  }
 }
 
 async function handleDelete(id: number) {
@@ -89,6 +108,15 @@ function formatDate(d: string) {
 .subtitle {
   color: #888;
   font-size: 16px;
+}
+.error-banner {
+  background: #3b1010;
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
 }
 .create-bar {
   display: flex;
