@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
 import models  # noqa: F401 — register ORM models on Base.metadata
-from routers import chat
+from routers import chat, story
 
 app = FastAPI(title="AI Novel Agent")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(chat.router, prefix="/api")
+app.include_router(story.router, prefix="/api")
 
 
 @app.on_event("startup")
