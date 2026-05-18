@@ -16,7 +16,8 @@ export default defineComponent({
       return store.outline.filter(n => n.parent_id === parentId).sort((a, b) => a.sort_order - b.sort_order)
     }
 
-    const TreeNode = defineComponent({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const TreeNode: any = defineComponent({
       name: 'TreeNode',
       props: { node: Object as () => OutlineNode, depth: Number },
       setup(props: { node: OutlineNode; depth: number }) {
@@ -54,7 +55,7 @@ export default defineComponent({
             h('span', { class: 'node-level' }, props.node.level)
           ]),
           props.node.summary && expanded.value ? h('div', { class: 'node-summary', style: { paddingLeft: `calc(${indent.value} + 24px)` } }, props.node.summary.slice(0, 120)) : null,
-          expanded.value && children.value.map(child =>
+          expanded.value && children.value.map((child: OutlineNode) =>
             h(TreeNode, { node: child, depth: (props.depth ?? 0) + 1, key: child.id })
           )
         ])
